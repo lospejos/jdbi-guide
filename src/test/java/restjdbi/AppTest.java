@@ -8,10 +8,13 @@ import org.junit.Test;
 public class AppTest extends BaseTest {
 
   @Test
-  public void index() throws Exception {
-    server.get("/")
-        .expect(200)
-        .header("Content-Type", "text/html;charset=UTF-8");
+  public void pets() throws Exception {
+    server.post("/pets")
+        .body("{\"name\": \"Oliver\"}", "application/json")
+        .expect("{\"id\":1,\"name\":\"Oliver\"}");
+
+    server.get("/pets")
+        .expect("[{\"id\":1,\"name\":\"Oliver\"}]");
   }
 
 }
