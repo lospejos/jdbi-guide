@@ -85,7 +85,7 @@ import org.jooby.json.Jackson;
 Let's create a simple ```Pet``` class with an ```id```, ```name``` and getters/setters for them.
 
 ```java
-package restjdbi;
+package restfuljdbi;
 
 public class Pet {
 

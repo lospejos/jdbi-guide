@@ -1,4 +1,4 @@
-package restjdbi;
+package restfuljdbi;
 
 import java.util.Map;
 

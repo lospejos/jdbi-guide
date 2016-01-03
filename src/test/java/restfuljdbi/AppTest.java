@@ -1,4 +1,4 @@
-package restjdbi;
+package restfuljdbi;
 
 import org.junit.Test;
 
