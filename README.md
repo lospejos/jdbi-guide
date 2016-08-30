@@ -314,6 +314,7 @@ put("/pets", req -> {
 
     int rows = handle
         .createStatement("update pets p set p.name = :name where p.id = :id")
+        .bind("name", pet.getName())
         .bind("id", pet.getId())
         .execute();
 
