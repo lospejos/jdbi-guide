@@ -16,7 +16,7 @@ public class AppTest extends BaseTest {
     server.get("/pets")
     .expect("[{\"id\":1,\"name\":\"Oliver\"}]");
      
-    server.put("/pets")
+    server.put("/pets/1")
 	    .body("{\"id\": 1, \"name\": \"Jemima\"}", "application/json")
 	    .expect("{\"id\":1,\"name\":\"Jemima\"}");
 
