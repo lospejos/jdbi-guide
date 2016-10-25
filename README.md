@@ -47,7 +47,7 @@ Make sure you have all these software installed it in your computer:
 Open a terminal (console for Windows users) and paste:
 
 ```bash
-mvn archetype:generate -B -DgroupId=restfuljdbi -DartifactId=restful-jdbi -Dversion=1.0 -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.13.0
+mvn archetype:generate -B -DgroupId=restfuljdbi -DartifactId=restful-jdbi -Dversion=1.0 -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.0.0.CR8
 ```
 
 An almost empty application is ready to run, you can try now with:
@@ -179,7 +179,7 @@ schema = """
 import org.skife.jdbi.v2.Handle;
 ...
 {
-  use(new Jdbi().doWith((dbi, conf) -> {
+  use(new Jdbi().doWith((DBI dbi, Config conf) -> {
     try (Handle handle = dbi.open()) {
       handle.execute(conf.get("schema"));
     }
@@ -204,8 +204,8 @@ import org.skife.jdbi.v2.Query;
 ...
 {
   get("/pets", req -> {
-    try (Handle h = req.require(Handle.class)) {
-      Query<Pet> q = h.createQuery("select * from pets")
+    try (Handle handle = req.require(Handle.class)) {
+      Query<Pet> q = handle.createQuery("select * from pets")
           .map(Pet.class);
       return q.list();
     }
@@ -223,8 +223,8 @@ import org.skife.jdbi.v2.Query;
 ...
 {
   get("/pets", req -> {
-    try (Handle h = req.require(Handle.class)) {
-      Query<Pet> q = h.createQuery("select * from pets limit :start, :max")
+    try (Handle handle = req.require(Handle.class)) {
+      Query<Pet> q = handle.createQuery("select * from pets limit :start, :max")
           .bind("start", req.param("start").intValue(0))
           .bind("max", req.param("max").intValue(20))
           .map(Pet.class);
@@ -246,8 +246,8 @@ Let's add a new route to get a single pet by ID:
 
 ```java
 get("/pets/:id", req -> {
-  try (Handle h = req.require(Handle.class)) {
-    Query<Pet> q = h.createQuery("select * from pets p where p.id = :id")
+  try (Handle handle = req.require(Handle.class)) {
+    Query<Pet> q = handle.createQuery("select * from pets where id = :id")
         .bind("id", req.param("id").intValue())
         .map(Pet.class);
     Pet pet = q.first();
@@ -307,15 +307,15 @@ post("/pets", req -> {
 Updating a pet is quite similar:
 
 ```java
-put("/pets", req -> {
+put("/pets/:id", req -> {
   try (Handle handle = req.require(Handle.class)) {
     // read from HTTP body
     Pet pet = req.body().to(Pet.class);
 
     int rows = handle
-        .createStatement("update pets p set p.name = :name where p.id = :id")
+        .createStatement("update pets set name = :name where id = :id")
         .bind("name", pet.getName())
-        .bind("id", pet.getId())
+        .bind("id", req.param("id").intValue())
         .execute();
 
     if (rows <= 0) {
@@ -339,7 +339,7 @@ Again, delete operation is similar to update:
 delete("/pets/:id", req -> {
   try (Handle handle = req.require(Handle.class)) {
     int rows = handle
-        .createStatement("delete pets where p.id = :id")
+        .createStatement("delete pets where id = :id")
         .bind("id", req.param("id").intValue())
         .execute();
 
@@ -375,8 +375,8 @@ We are done with our API, let's review how it looks:
 
   /** List pets. */
   get("/pets", req -> {
-    try (Handle h = req.require(Handle.class)) {
-      Query<Pet> q = h.createQuery("select * from pets limit :start, :max")
+    try (Handle handle = req.require(Handle.class)) {
+      Query<Pet> q = handle.createQuery("select * from pets limit :start, :max")
           .bind("start", req.param("start").intValue(0))
           .bind("max", req.param("max").intValue(20))
           .map(Pet.class);
@@ -386,8 +386,8 @@ We are done with our API, let's review how it looks:
 
   /** Get a pet by ID. */
   get("/pets/:id", req -> {
-    try (Handle h = req.require(Handle.class)) {
-      Query<Pet> q = h.createQuery("select * from pets p where p.id = :id")
+    try (Handle handle = req.require(Handle.class)) {
+      Query<Pet> q = handle.createQuery("select * from pets where id = :id")
           .bind("id", req.param("id").intValue())
           .map(Pet.class);
       Pet pet = q.first();
@@ -417,14 +417,15 @@ We are done with our API, let's review how it looks:
   });
 
   /** Update a pet. */
-  put("/pets", req -> {
+  put("/pets/:id", req -> {
     try (Handle handle = req.require(Handle.class)) {
       // read from HTTP body
       Pet pet = req.body().to(Pet.class);
 
       int rows = handle
-          .createStatement("update pets p set p.name = :name where p.id = :id")
-          .bind("id", pet.getId())
+          .createStatement("update pets set name = :name where id = :id")
+          .bind("name", pet.getName())
+          .bind("id", req.param("id").intValue())
           .execute();
 
       if (rows <= 0) {
@@ -441,8 +442,8 @@ We are done with our API, let's review how it looks:
       Pet pet = req.body().to(Pet.class);
 
       int rows = handle
-          .createStatement("delete pets where p.id = :id")
-          .bind("id", pet.getId())
+          .createStatement("delete pets where id = :id")
+          .bind("id", req.param("id").intValue())
           .execute();
 
       if (rows <= 0) {
@@ -468,8 +469,8 @@ Let's fix that with ```use("/path")```:
   use("/pets")
       /** List pets. */
       .get(req -> {
-        try (Handle h = req.require(Handle.class)) {
-          Query<Pet> q = h.createQuery("select * from pets limit :start, :max")
+        try (Handle handle = req.require(Handle.class)) {
+          Query<Pet> q = handle.createQuery("select * from pets limit :start, :max")
               .bind("start", req.param("start").intValue(0))
               .bind("max", req.param("max").intValue(20))
               .map(Pet.class);
@@ -478,8 +479,8 @@ Let's fix that with ```use("/path")```:
       })
       /** Get a pet by ID. */
       .get("/:id", req -> {
-        try (Handle h = req.require(Handle.class)) {
-          Query<Pet> q = h.createQuery("select * from pets p where p.id = :id")
+        try (Handle handle = req.require(Handle.class)) {
+          Query<Pet> q = handle.createQuery("select * from pets where id = :id")
               .bind("id", req.param("id").intValue())
               .map(Pet.class);
           Pet pet = q.first();
@@ -507,14 +508,15 @@ Let's fix that with ```use("/path")```:
         }
       })
       /** Update a pet. */
-      .put(req -> {
+      .put("/:id", req -> {
         try (Handle handle = req.require(Handle.class)) {
           // read from HTTP body
           Pet pet = req.body().to(Pet.class);
 
           int rows = handle
-              .createStatement("update pets p set p.name = :name where p.id = :id")
-              .bind("id", pet.getId())
+              .createStatement("update pets set name = :name where id = :id")
+              .bind("name", pet.getName())
+              .bind("id", req.param("id").intValue())
               .execute();
 
           if (rows <= 0) {
@@ -530,8 +532,8 @@ Let's fix that with ```use("/path")```:
           Pet pet = req.body().to(Pet.class);
 
           int rows = handle
-              .createStatement("delete pets where p.id = :id")
-              .bind("id", pet.getId())
+              .createStatement("delete pets where id = :id")
+              .bind("id", req.param("id").intValue())
               .execute();
 
           if (rows <= 0) {
