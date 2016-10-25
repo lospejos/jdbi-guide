@@ -6,9 +6,6 @@ public class Pet {
 
   private String name;
 
-  public Pet() {
-  }
-
   public Integer getId() {
     return id;
   }
