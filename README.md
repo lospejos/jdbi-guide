@@ -70,7 +70,7 @@ http://localhost:8080
 
 ## json
 
-Our API will use JSON, so let's add the [jackson](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi) dependency and import into our ```App.java```:
+Our API will use JSON, so let's add the [jackson](http://jooby.org/doc/jackson/) dependency and import into our ```App.java```:
 
 ```java
 import org.jooby.json.Jackson;
@@ -114,7 +114,7 @@ public class Pet {
 
 ## connecting to a database
 
-Now, go to your ```pom.xml``` and add the [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi) dependency.
+Now, go to your ```pom.xml``` and add the [jdbi](http://jooby.org/doc/jdbi/) dependency.
 
 Import and use it into your ```App.java```:
 
@@ -127,7 +127,7 @@ import org.jooby.jdbi.Jdbi;
 }
 ```
 
-The [jdbi module](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi) extends the [jdbc module](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc). The [jdbc module](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) give us access to relational databases and exposes a [Hikari](https://github.com/brettwooldridge/HikariCP) **high performance connection pool**.
+The [jdbi module](http://jooby.org/doc/jdbi/) extends the [jdbc module](http://jooby.org/doc/jdbc/). The [jdbc module](http://jooby.org/doc/jdbc/) give us access to relational databases and exposes a [Hikari](https://github.com/brettwooldridge/HikariCP) **high performance connection pool**.
 
 To connect to a database, we have to define our database connection properties in ```conf/application.conf```:
 
