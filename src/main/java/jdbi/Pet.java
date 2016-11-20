@@ -1,4 +1,4 @@
-package restfuljdbi;
+package jdbi;
 
 public class Pet {
 

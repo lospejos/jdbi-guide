@@ -1,38 +1,9 @@
-[![Build Status](https://travis-ci.org/jooby-guides/restful-jdbi.svg?branch=master)](https://travis-ci.org/jooby-guides/restful-jdbi)
+[![Build Status](https://travis-ci.org/jooby-guides/jdbi-guide.svg?branch=master)](https://travis-ci.org/jooby-guides/jdbi-guide)
+# jdbi guide
 
-# restful API with JDBI
+In this guide you will learn how to build a **JSON API** for ```Pets``` and persist them into a **relational database** using [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi) module.
 
-In this guide you will learn how to build a rest API for ```Pets``` and persist them in a **relational database**. We are going to save our pets using [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi), a fluent SQL API.
-
-* List pets in from store:
-
-```
-GET http://localhost:8080/pets
-```
-
-* Get a pet by ID:
-
-```
-GET http://localhost:8080/pets/:id
-```
-
-* Creates a new pet from HTTP json body:
-
-```
-POST http://localhost:8080/pets
-```
-
-* Updates a pet from HTTP json body:
-
-```
-PUT http://localhost:8080/pets
-```
-
-* Delete a pet by ID:
-
-```
-DELETE http://localhost:8080/pets/:id
-```
+[JDBI](http://jdbi.org/) is a SQL convenience library for Java. It attempts to expose relational database access in idiommatic Java, using collections, beans, and so on, while maintaining the same level of detail as JDBC. It exposes two different style APIs, a fluent style and a sql object style.
 
 # requirements
 
@@ -44,33 +15,33 @@ Make sure you have all these software installed it in your computer:
 
 # ready
 
-Open a terminal (console for Windows users) and paste:
+Open a terminal/console and paste:
 
 ```bash
-mvn archetype:generate -B -DgroupId=restfuljdbi -DartifactId=restful-jdbi -Dversion=1.0 -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.0.0.CR8
+mvn archetype:generate -B -DgroupId=org.jooby.guides -DartifactId=jdbi-guide -Dversion=1.0 -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.0.0
 ```
 
-An almost empty application is ready to run, you can try now with:
+Jump into the application:
 
 ```
-cd restful-jdbi
-
-mvn jooby:run
+cd jdbi-guide
 ```
 
-Open a browser and type:
+# dependencies
 
+## jackson
+
+Add the [jackson](https://github.com/jooby-project/jooby/tree/master/jooby-jackson) dependency to your project:
+
+```xml
+<dependency>
+  <groupId>org.jooby</groupId>
+  <artifactId>jooby-jackson</artifactId>
+  <version>1.0.0</version>
+</dependency>
 ```
-http://localhost:8080
-```
 
-> **TIP**: If you are using an IDE that automatically compiles your source code while you save it... ```mvn jooby:run``` will detects those changes and restart the application for you!! more at [mvn jooby:run](https://github.com/jooby-project/jooby/tree/master/jooby-maven-plugin).
-
-# getting dirty
-
-## json
-
-Our API will use JSON, so let's add the [jackson](http://jooby.org/doc/jackson/) dependency and import into our ```App.java```:
+Got to `App.java` and add the module:
 
 ```java
 import org.jooby.json.Jackson;
@@ -80,12 +51,35 @@ import org.jooby.json.Jackson;
 }
 ```
 
-## pet class
+## jdbi
 
-Let's create a simple ```Pet``` class with an ```id```, ```name``` and getters/setters for them.
+Add the [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi) dependency to your project:
+
+```xml
+<dependency>
+  <groupId>org.jooby</groupId>
+  <artifactId>jooby-jdbi</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+
+Import and use the module in `App.java`:
 
 ```java
-package restfuljdbi;
+import org.jooby.jdbi.Jdbi;
+...
+{
+  ...
+  use(new Jdbi());
+}
+```
+
+# create a pet object
+
+Let's create a simple ```Pet``` class with an ```id```, ```name``` and getters/setters for them, like:
+
+```java
+package jdbi;
 
 public class Pet {
 
@@ -112,22 +106,9 @@ public class Pet {
 }
 ```
 
-## connecting to a database
+# connect to database
 
-Now, go to your ```pom.xml``` and add the [jdbi](http://jooby.org/doc/jdbi/) dependency.
-
-Import and use it into your ```App.java```:
-
-```java
-...
-import org.jooby.jdbi.Jdbi;
-...
-{
-  use(new Jdbi());
-}
-```
-
-The [jdbi module](http://jooby.org/doc/jdbi/) extends the [jdbc module](http://jooby.org/doc/jdbc/). The [jdbc module](http://jooby.org/doc/jdbc/) give us access to relational databases and exposes a [Hikari](https://github.com/brettwooldridge/HikariCP) **high performance connection pool**.
+The [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi) module extends the [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module. The [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module give us access to relational databases and exports a [Hikari](https://github.com/brettwooldridge/HikariCP) database connection pool.
 
 To connect to a database, we have to define our database connection properties in ```conf/application.conf```:
 
@@ -144,7 +125,7 @@ The ```mem``` or ```fs``` are special databases. In order to use them we need th
 </dependency>
 ```
 
-> **NOTE**: If you want to connect to ```mySQL``` database, then you'll have to add the ```mySQL Java Driver``` to your ```pom.xml``` and define the connection properties like:
+> **NOTE**: If you want to connect to `mySQL` database (or any other), then you'll have to add the ```mySQL Java Driver``` to your project and define the connection properties like:
 >
 > ```
 > db.url = "jdbc:mysql//localhost/pets"
@@ -152,11 +133,11 @@ The ```mem``` or ```fs``` are special databases. In order to use them we need th
 > db.password = "password"
 > ```
 
-## creating a database
+## creating a schema
 
 We are going to create a database schema at application startup time:
 
-* Define a ```schema``` property in ```conf/application.conf``` like:
+* Define a `schema` property in ```conf/application.conf``` like:
 
 ```
 schema = """
@@ -173,97 +154,146 @@ schema = """
 """
 ```
 
-* Execute the script in ```App.java```:
+* Execute the script in `App.java`:
 
 ```java
 import org.skife.jdbi.v2.Handle;
 ...
 {
-  use(new Jdbi().doWith((DBI dbi, Config conf) -> {
-    try (Handle handle = dbi.open()) {
-      handle.execute(conf.get("schema"));
-    }
-  }));
+  use(new Jdbi()
+    // 1 dbi ready
+    .doWith((DBI dbi, Config conf) -> {
+      // 2 open a new handle
+      try (Handle handle = dbi.open()) {
+        // 3. execute script
+        handle.execute(conf.getString("schema"));
+      }
+    }));
 }
 ```
 
-We add a multi-line string property (triple quotes) with our schema in ```conf/application.conf```.
+**1)** The [.doWith](http://jooby.org/apidocs/org/jooby/jdbc/Jdbc.html#doWith-java.util.function.BiConsumer-) is a callback method which is executed when `DBI` is ready.
 
-The ```.doWith(DBI, Config)``` is a callback method and call it when ```DBI``` is ready.
+**2)** We open a new `Handle` for running our script, which is automatically released with the ```try-with-resources``` statement.
 
-A call to ```dbi.open()``` creates and opens a ```Handle``` for running our script. A ```Handle``` need to be release it, by calling ```handle.close()```, we are doing that with the ```try-with-resources``` statement available since Java 7.
+**3)** We execute the create schema script.
 
-With a database ready, we are going to build our REST API.
+With a database ready, we are going to build our *JSON API*.
+
+> **TIP**: There is [flyway](https://github.com/jooby-project/jooby/tree/master/jooby-flyway) module for database migrations.
+
+## creating a repository
+
+[The SQL Object API](http://jdbi.org/sql_object_overview/) provides a declarative mechanism for a common [JDBI](http://jdbi.org/) usage – creation of DAO type objects where one method generally equates to one SQL statement. To use the SQL Object API, create an interface annotated to declare the desired behavior, like so:
+
+```java
+package jdbi;
+
+import java.io.Closeable;
+import java.util.List;
+
+import org.skife.jdbi.v2.sqlobject.Bind;
+import org.skife.jdbi.v2.sqlobject.BindBean;
+import org.skife.jdbi.v2.sqlobject.GetGeneratedKeys;
+import org.skife.jdbi.v2.sqlobject.SqlQuery;
+import org.skife.jdbi.v2.sqlobject.SqlUpdate;
+import org.skife.jdbi.v2.sqlobject.helpers.MapResultAsBean;
+
+/**
+ * Basic CRUD operations around {@link Pet}.
+ */
+public interface PetRepository extends Closeable {
+
+  /**
+   * @return List all pets.
+   */
+  @SqlQuery("select * from pets")
+  @MapResultAsBean
+  List<Pet> list();
+
+  /**
+   * Find a pet by ID.
+   *
+   * @param id Pet ID.
+   * @return A pet.
+   */
+  @SqlQuery("select * from pets where id = :id")
+  @MapResultAsBean
+  Pet findById(@Bind("id") int id);
+
+  /**
+   * Insert a new pet.
+   *
+   * @param pet A pet.
+   * @return The generated key.
+   */
+  @SqlUpdate("insert into pets (name) values (:pet.name)")
+  @GetGeneratedKeys
+  int insert(@BindBean("pet") Pet pet);
+
+  /**
+   * Update a pet by ID.
+   *
+   * @param pet Pet to update.
+   */
+  @SqlUpdate("update pets set name=:pet.name where id=:pet.id")
+  void update(@BindBean("pet") Pet pet);
+
+  /**
+   * Delete a pet by ID.
+   *
+   * @param id Pet ID.
+   */
+  @SqlUpdate("delete pets where id = :id")
+  void deleteById(@Bind("id") int id);
+}
+```
+
+# routes
 
 ## listing pets
 
-Find ```App.java``` and add a new route:
-
 ```java
-import org.skife.jdbi.v2.Query;
-...
 {
-  get("/pets", req -> {
-    try (Handle handle = req.require(Handle.class)) {
-      Query<Pet> q = handle.createQuery("select * from pets")
-          .map(Pet.class);
-      return q.list();
-    }
+  get("/api/pets", req -> {
+    // 1 get dbi and start a new transaction
+    return require(DBI.class).inTransaction((handle, status) -> {
+      // 2 attach the repository to jdbi handle
+      PetRepository repo = handle.attach(PetRepository.class);
+
+      // 3 list all pets
+      List<Pet> pets = repo.list();
+      return pets;
+    });
   });
-```
-
-The ```req.require(Handle.class)``` give us a new ```Handle```, we create a new ```Query``` map the result to our ```Pet``` class and list all the results.
-
-> NOTE: A call to ```req.require(Handle.class)``` is identical too ```req.require(DBI.class).open()```, so don't forget to close the ```Handle``` once you are done.
-
-Let's add a ```start``` and ```max``` parameters to our list service:
-
-```java
-import org.skife.jdbi.v2.Query;
-...
-{
-  get("/pets", req -> {
-    try (Handle handle = req.require(Handle.class)) {
-      Query<Pet> q = handle.createQuery("select * from pets limit :start, :max")
-          .bind("start", req.param("start").intValue(0))
-          .bind("max", req.param("max").intValue(20))
-          .map(Pet.class);
-      return q.list();
-    }
-  });
-```
-
-Now, our listing service will returns a ```max``` of ```20``` results by default, from the beginning ```start=0```. This two calls are exactly the same:
-
-```
-http://localhost:8080/pets
-http://localhost:8080/pets?start=0&max=20
+}
 ```
 
 ## get a pet by ID
 
-Let's add a new route to get a single pet by ID:
-
 ```java
-get("/pets/:id", req -> {
-  try (Handle handle = req.require(Handle.class)) {
-    Query<Pet> q = handle.createQuery("select * from pets where id = :id")
-        .bind("id", req.param("id").intValue())
-        .map(Pet.class);
-    Pet pet = q.first();
-    if (pet == null) {
-      throw new Err(Status.NOT_FOUND);
-    }
-    return pet;
-  }
-});
+{
+  get("/api/pets/:id", req -> {
+    // 1 get dbi and start a new transaction
+    return require(DBI.class).inTransaction((handle, status) -> {
+      // 2 get ID from HTTP request
+      int id = req.param("id").intValue();
+
+      // 3 attach the repository to jdbi handle
+      PetRepository repo = handle.attach(PetRepository.class);
+
+      // 4 get a pet by ID
+      Pet pet = repo.findById(id);
+
+      if (pet == null) {
+        // 5 generate 404 for invalid pet IDs
+        throw new Err(Status.NOT_FOUND);
+      }
+      return pet;
+    });
+  });
+}
 ```
-
-The SQL query defines an ```id``` parameter which that we bind to the path variable: ```id```.
-
-We execute the query by calling ```q.first()``` and returns the pet or a ```404``` error response.
-
-> **NOTE**: The ```Err``` exception is a special exception that carry an HTTP status code. More at [err handling](/doc/#error-handling).
 
 Try it:
 
@@ -271,95 +301,80 @@ Try it:
 http://localhost:8080/pets/1
 ```
 
-You'll see a ```404``` err page because we didn't persist any pet yet. Let's see how to save one.
+You'll see an error page because we didn't persist any pet yet. Let's see how to save one.
 
-## saving a pet
+## save a pet
 
 So far, we see how to query pets by ID or listing all them, it is time to see how to creates a new pet:
 
 ```java
-post("/pets", req -> {
-  try (Handle handle = req.require(Handle.class)) {
-    // read post from HTTP body
-    Pet pet = req.body().to(Pet.class);
+{
+  post("/api/pets", req -> {
+    // 1 get dbi and start a new transaction
+    return require(DBI.class).inTransaction((handle, status) -> {
+      // 2 read pet from JSON HTTP body
+      Pet pet = req.body(Pet.class);
 
-    GeneratedKeys<Map<String, Object>> keys = handle
-        .createStatement("insert into pets (name) values (:name)")
-        .bind("name", pet.getName())
-        .executeAndReturnGeneratedKeys();
-    Map<String, Object> key = keys.first();
-    // get and set the auto-increment key
-    Number id = (Number) key.values().iterator().next();
-    pet.setId(id.intValue());
-    return pet;
-  }
-});
+      // 3 attach respository to jdbi handle
+      PetRepository repo = handle.attach(PetRepository.class);
+
+      // 4 insert pet and retrieve generated ID
+      int petId = repo.insert(pet);
+      pet.setId(petId);
+
+      return pet;
+    });
+  });
+}
 ```
 
-* We open a ```Handle``` with ```req.require(Handle.class)```
-* We read the pet from the JSON HTTP body: ```req.body().to(Pet.class)```
-* Insert a new pet with ```executeAndReturnGeneratedKeys()```
-* Get the generated keys (ID is an auto-increment column)
-* Lastly, we update the pet ID with the generated keys and returns the pet as HTTP response
-
-## updating a pet
-
-Updating a pet is quite similar:
+## update a pet
 
 ```java
-put("/pets/:id", req -> {
-  try (Handle handle = req.require(Handle.class)) {
-    // read from HTTP body
-    Pet pet = req.body().to(Pet.class);
+{
+  put("/api/pets", req -> {
+    // 1 get dbi and start a new transaction
+    return require(DBI.class).inTransaction((handle, status) -> {
+      // 2 read pet from JSON HTTP body
+      Pet pet = req.body(Pet.class);
 
-    int rows = handle
-        .createStatement("update pets set name = :name where id = :id")
-        .bind("name", pet.getName())
-        .bind("id", req.param("id").intValue())
-        .execute();
+      // 3 attach repository to jdbi handle
+      PetRepository repo = handle.attach(PetRepository.class);
 
-    if (rows <= 0) {
-      throw new Err(Status.NOT_FOUND);
-    }
-    return pet;
-  }
-});
+      // 4 update pet
+      repo.update(pet);
+
+      return pet;
+    });
+  });
+}
 ```
-* We open a ```Handle``` with ```req.require(Handle.class)```
-* We read the pet from the JSON HTTP body: ```req.body().to(Pet.class)```
-* We update a pet by ID.
-* If no rows were updated, then we returns a ```404```
-* Otherwise, we return the updated pet
 
 ## delete a pet by ID
 
-Again, delete operation is similar to update:
-
 ```java
-delete("/pets/:id", req -> {
-  try (Handle handle = req.require(Handle.class)) {
-    int rows = handle
-        .createStatement("delete pets where id = :id")
-        .bind("id", req.param("id").intValue())
-        .execute();
+{
+  delete("/api/pets/:id", req -> {
+    // 1 get dbi and start a new transaction
+    return require(DBI.class).inTransaction((handle, status) -> {
+      // 2 read pet id from HTTP request
+      int id = req.param("id").intValue();
 
-    if (rows <= 0) {
-      throw new Err(Status.NOT_FOUND);
-    }
-    return pet;
-  }
-});
+      // 3 attach repository to jdbi handle
+      PetRepository repo = handle.attach(PetRepository.class);
+
+      // 4 delete pet by ID
+      repo.deleteById(id);
+
+      return Results.noContent();
+    });
+  });
+}
 ```
 
-* We open a ```Handle``` with ```req.require(Handle.class)```
-* We read ```id``` parameter with ```req.param("id").intValue()```
-* We delete a pet by ID.
-* If no rows were deleted, then we returns a ```404```
-* Otherwise, we return a 204 response with ```Results.noContent()```
+# quick preview
 
-## reviewing API
-
-We are done with our API, let's review how it looks:
+API is ready, let's see how it looks like:
 
 ```java
 {
@@ -374,174 +389,126 @@ We are done with our API, let's review how it looks:
   }));
 
   /** List pets. */
-  get("/pets", req -> {
-    try (Handle handle = req.require(Handle.class)) {
-      Query<Pet> q = handle.createQuery("select * from pets limit :start, :max")
-          .bind("start", req.param("start").intValue(0))
-          .bind("max", req.param("max").intValue(20))
-          .map(Pet.class);
-      return q.list();
-    }
+  get("/api/pets", req -> {
+    ...
   });
 
   /** Get a pet by ID. */
-  get("/pets/:id", req -> {
-    try (Handle handle = req.require(Handle.class)) {
-      Query<Pet> q = handle.createQuery("select * from pets where id = :id")
-          .bind("id", req.param("id").intValue())
-          .map(Pet.class);
-      Pet pet = q.first();
-      if (pet == null) {
-        throw new Err(Status.NOT_FOUND);
-      }
-      return pet;
-    }
+  get("/api/pets/:id", req -> {
+    ...
   });
 
   /** Create a pet. */
-  post("/pets", req -> {
-    try (Handle handle = req.require(Handle.class)) {
-      // read from HTTP body
-      Pet pet = req.body().to(Pet.class);
-
-      GeneratedKeys<Map<String, Object>> keys = handle
-          .createStatement("insert into pets (name) values (:name)")
-          .bind("name", pet.getName())
-          .executeAndReturnGeneratedKeys();
-      Map<String, Object> key = keys.first();
-      // get and set the autogenerated key
-      Number id = (Number) key.values().iterator().next();
-      pet.setId(id.intValue());
-      return pet;
-    }
+  post("/api/pets", req -> {
+    ...
   });
 
   /** Update a pet. */
-  put("/pets/:id", req -> {
-    try (Handle handle = req.require(Handle.class)) {
-      // read from HTTP body
-      Pet pet = req.body().to(Pet.class);
-
-      int rows = handle
-          .createStatement("update pets set name = :name where id = :id")
-          .bind("name", pet.getName())
-          .bind("id", req.param("id").intValue())
-          .execute();
-
-      if (rows <= 0) {
-        throw new Err(Status.NOT_FOUND);
-      }
-      return pet;
-    }
+  put("/api/pets", req -> {
+    ...
   });
 
   /** Delete a pet by ID. */
-  delete("/pets/:id", req -> {
-    try (Handle handle = req.require(Handle.class)) {
-      // read from HTTP body
-      Pet pet = req.body().to(Pet.class);
-
-      int rows = handle
-          .createStatement("delete pets where id = :id")
-          .bind("id", req.param("id").intValue())
-          .execute();
-
-      if (rows <= 0) {
-        throw new Err(Status.NOT_FOUND);
-      }
-      return Results.noContent();
-    }
+  delete("/api/pets/:id", req -> {
+    ...
   });
 }
 ```
 
 Not bad, ugh?
 
-Isn't, but did you see we have to repeat the ```/pets``` pattern for each of our REST operations?
+Isn't, but did you see we have to repeat the `/api/pets` pattern for each of our routes?
 
-Let's fix that with ```use("/path")```:
+Let's fix that with [Jooby.use(String)](http://jooby.org/apidocs/org/jooby/Jooby.html#use-java.lang.String-):
 
 ```java
-{
-  ...
+package jdbi;
 
-  /** Pet API. */
-  use("/pets")
-      /** List pets. */
-      .get(req -> {
-        try (Handle handle = req.require(Handle.class)) {
-          Query<Pet> q = handle.createQuery("select * from pets limit :start, :max")
-              .bind("start", req.param("start").intValue(0))
-              .bind("max", req.param("max").intValue(20))
-              .map(Pet.class);
-          return q.list();
-        }
-      })
-      /** Get a pet by ID. */
-      .get("/:id", req -> {
-        try (Handle handle = req.require(Handle.class)) {
-          Query<Pet> q = handle.createQuery("select * from pets where id = :id")
-              .bind("id", req.param("id").intValue())
-              .map(Pet.class);
-          Pet pet = q.first();
-          if (pet == null) {
-            throw new Err(Status.NOT_FOUND);
+import java.util.List;
+
+import org.jooby.Jooby;
+import org.jooby.Results;
+import org.jooby.jdbi.Jdbi;
+import org.jooby.json.Jackson;
+import org.skife.jdbi.v2.DBI;
+import org.skife.jdbi.v2.Handle;
+
+import com.typesafe.config.Config;
+
+public class App extends Jooby {
+
+  {
+    use(new Jackson());
+
+    use(new Jdbi()
+        // 1 dbi ready
+        .doWith((final DBI dbi, final Config conf) -> {
+          // 2 open a new handle
+          try (Handle handle = dbi.open()) {
+            // 3. execute script
+            handle.execute(conf.getString("schema"));
           }
-          return pet;
-        }
-      })
-      /** Create a pet. */
-      .post(req -> {
-        try (Handle handle = req.require(Handle.class)) {
-          // read from HTTP body
-          Pet pet = req.body().to(Pet.class);
+        }));
 
-          GeneratedKeys<Map<String, Object>> keys = handle
-              .createStatement("insert into pets (name) values (:name)")
-              .bind("name", pet.getName())
-              .executeAndReturnGeneratedKeys();
-          Map<String, Object> key = keys.first();
-          // get and set the autogenerated key
-          Number id = (Number) key.values().iterator().next();
-          pet.setId(id.intValue());
-          return pet;
-        }
-      })
-      /** Update a pet. */
-      .put("/:id", req -> {
-        try (Handle handle = req.require(Handle.class)) {
-          // read from HTTP body
-          Pet pet = req.body().to(Pet.class);
+    /** Pet API. */
+    use("/api/pets")
+        /** List pets. */
+        .get(req -> {
+          return require(DBI.class).inTransaction((handle, status) -> {
+            PetRepository repo = handle.attach(PetRepository.class);
+            List<Pet> pets = repo.list();
+            return pets;
+          });
+        })
+        /** Get a pet by ID. */
+        .get("/:id", req -> {
+          return require(DBI.class).inTransaction((handle, status) -> {
+            int id = req.param("id").intValue();
 
-          int rows = handle
-              .createStatement("update pets set name = :name where id = :id")
-              .bind("name", pet.getName())
-              .bind("id", req.param("id").intValue())
-              .execute();
+            PetRepository repo = handle.attach(PetRepository.class);
+            Pet pet = repo.findById(id);
+            return pet;
+          });
+        })
+        /** Create a pet. */
+        .post(req -> {
+          return require(DBI.class).inTransaction((handle, status) -> {
+            // read from HTTP body
+            Pet pet = req.body(Pet.class);
 
-          if (rows <= 0) {
-            throw new Err(Status.NOT_FOUND);
-          }
-          return pet;
-        }
-      })
-      /** Delete a pet by ID. */
-      .delete("/:id", req -> {
-        try (Handle handle = req.require(Handle.class)) {
-          // read from HTTP body
-          Pet pet = req.body().to(Pet.class);
+            PetRepository repo = handle.attach(PetRepository.class);
+            int petId = repo.insert(pet);
+            pet.setId(petId);
+            return pet;
+          });
+        })
+        /** Update a pet. */
+        .put(req -> {
+          return require(DBI.class).inTransaction((handle, status) -> {
+            // read from HTTP body
+            Pet pet = req.body(Pet.class);
 
-          int rows = handle
-              .createStatement("delete pets where id = :id")
-              .bind("id", req.param("id").intValue())
-              .execute();
+            PetRepository repo = handle.attach(PetRepository.class);
+            repo.update(pet);
+            return pet;
+          });
+        })
+        /** Delete a pet by ID. */
+        .delete("/:id", req -> {
+          return require(DBI.class).inTransaction((handle, status) -> {
+            int id = req.param("id").intValue();
 
-          if (rows <= 0) {
-            throw new Err(Status.NOT_FOUND);
-          }
-          return Results.noContent();
-        }
-      });
+            PetRepository repo = handle.attach(PetRepository.class);
+            repo.deleteById(id);
+            return Results.noContent();
+          });
+        });
+  }
+
+  public static void main(final String[] args) {
+    run(App::new, args);
+  }
+
 }
 ```
 
@@ -549,17 +516,8 @@ Better now! The ```use``` method has many meanings in **Jooby**, If we use pass 
 
 # conclusion
 
-As you already see, building an API that saves data in a **database** is very simple. Code looks clean and simple thanks to [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi).
+As you already see, building an API that saves data in a **database** is very simple. Code looks clean and simple thanks to [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi) module.
 
-[Jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi) makes perfect sense if you want to have full control on your SQL queries, or if you don't like **ORM** tools too.
+The [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi) module makes perfect sense if you want to have full control on your SQL queries, or if you don't like **ORM** tools too.
 
-# source code
 
-* Complet source code available at: [restful-jdbi](https://github.com/jooby-guides/restful-jdbi)
-
-# help and support
-
-* Discuss, share ideas, ask questions at [group](https://groups.google.com/forum/#!forum/jooby-project) or [slack](https://jooby.slack.com)
-* Follow us at [@joobyproject](https://twitter.com/joobyproject) and [GitHub](https://github.com/jooby-project/jooby/tree/master)
-
-Happy coding!!
