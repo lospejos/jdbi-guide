@@ -1,30 +1,54 @@
 package jdbi;
 
+import static io.restassured.RestAssured.get;
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.post;
+import static org.hamcrest.Matchers.equalTo;
+import org.jooby.test.JoobyRule;
 import org.junit.Test;
+import org.junit.ClassRule;
 
 /**
  * @author jooby generator
  */
-public class AppTest extends BaseTest {
+public class AppTest {
+
+  @ClassRule
+  public static JoobyRule app = new JoobyRule(new App());
 
   @Test
   public void pets() throws Exception {
-    server.post("/api/pets")
-        .body("{\"name\": \"Oliver\"}", "application/json")
-        .expect("{\"id\":1,\"name\":\"Oliver\"}");
+    given()
+        .contentType("application/json")
+        .body("{\"name\": \"Oliver\"}")
+        .post("/api/pets")
+        .then()
+        .assertThat()
+        .body(equalTo("{\"id\":1,\"name\":\"Oliver\"}"));
 
-    server.get("/api/pets")
-        .expect("[{\"id\":1,\"name\":\"Oliver\"}]");
+    get("/api/pets")
+        .then()
+        .assertThat()
+        .body(equalTo("[{\"id\":1,\"name\":\"Oliver\"}]"));
 
-    server.get("/api/pets/1")
-        .expect("{\"id\":1,\"name\":\"Oliver\"}");
+    get("/api/pets/1")
+        .then()
+        .assertThat()
+        .body(equalTo("{\"id\":1,\"name\":\"Oliver\"}"));
 
-    server.put("/api/pets")
-        .body("{\"id\": 1, \"name\": \"Jemima\"}", "application/json")
-        .expect("{\"id\":1,\"name\":\"Jemima\"}");
+    given()
+        .contentType("application/json")
+        .body("{\"id\": 1, \"name\": \"Jemima\"}")
+        .put("/api/pets")
+        .then()
+        .assertThat()
+        .body(equalTo("{\"id\":1,\"name\":\"Jemima\"}"));
 
-    server.delete("/api/pets/1")
-        .expect(204);
+    given()
+        .delete("/api/pets/1")
+        .then()
+        .assertThat()
+        .statusCode(204);
   }
 
 }
