@@ -2,11 +2,11 @@ package jdbi;
 
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.post;
 import static org.hamcrest.Matchers.equalTo;
+
 import org.jooby.test.JoobyRule;
-import org.junit.Test;
 import org.junit.ClassRule;
+import org.junit.Test;
 
 /**
  * @author jooby generator
