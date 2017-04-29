@@ -1,13 +1,13 @@
-[![Build Status](https://travis-ci.org/jooby-project/jdbi-guide.svg?branch=master)](https://travis-ci.org/jooby-project/jdbi-guide)
+[![Build Status](https://travis-ci.org/jooby-guides/jdbi-guide.svg?branch=master)](https://travis-ci.org/jooby-guides/jdbi-guide)
 # jdbi guide
 
-In this guide you will learn how to build a **JSON API** for ```Pets``` and persist them into a **relational database** using [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi) module.
+In this guide you will learn how to build a **JSON API** for ```Pets``` and persist them into a **relational database** using the [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi) module.
 
-[JDBI](http://jdbi.org/) is a SQL convenience library for Java. It attempts to expose relational database access in idiommatic Java, using collections, beans, and so on, while maintaining the same level of detail as JDBC. It exposes two different style APIs, a fluent style and a sql object style.
+[JDBI](http://jdbi.org/) is a SQL convenience library for Java. It attempts to expose relational database access in idiomatic Java, using collections, beans, and so on, while maintaining the same level of detail as JDBC. It exposes two different style APIs, a fluent style and a sql object style.
 
 # requirements
 
-Make sure you have all these software installed it in your computer:
+Make sure you have the following installed on your computer:
 
 * A text editor or IDE
 * [JDK 8+](http://www.oracle.com/technetwork/java/javase/downloads/index.html) or later
@@ -18,10 +18,10 @@ Make sure you have all these software installed it in your computer:
 Open a terminal/console and paste:
 
 ```bash
-mvn archetype:generate -B -DgroupId=org.jooby.guides -DartifactId=jdbi-guide -Dversion=1.0 -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.0.2
+mvn archetype:generate -B -DgroupId=org.jooby.guides -DartifactId=jdbi-guide -Dversion=1.0 -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.1.1
 ```
 
-Jump into the application:
+Enter the application directory:
 
 ```
 cd jdbi-guide
@@ -37,11 +37,11 @@ Add the [jackson](https://github.com/jooby-project/jooby/tree/master/jooby-jacks
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jackson</artifactId>
-  <version>1.0.2</version>
+  <version>1.1.1</version>
 </dependency>
 ```
 
-Got to `App.java` and add the module:
+Go to `App.java` and add the module:
 
 ```java
 import org.jooby.json.Jackson;
@@ -59,7 +59,7 @@ Add the [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi) de
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbi</artifactId>
-  <version>1.0.2</version>
+  <version>1.1.1</version>
 </dependency>
 ```
 
@@ -125,7 +125,7 @@ The ```mem``` or ```fs``` are special databases. In order to use them we need th
 </dependency>
 ```
 
-> **NOTE**: If you want to connect to `mySQL` database (or any other), then you'll have to add the ```mySQL Java Driver``` to your project and define the connection properties like:
+> **NOTE**: If you want to connect to a database other than the embedded ```mem``` or ```fs```, like e.g. `mySQL`, then you'll have to add the ```mySQL Java Driver``` to your project and define the connection properties like this:
 >
 > ```
 > db.url = "jdbc:mysql//localhost/pets"
@@ -137,7 +137,7 @@ The ```mem``` or ```fs``` are special databases. In order to use them we need th
 
 We are going to create a database schema at application startup time:
 
-* Define a `schema` property in ```conf/application.conf``` like:
+* Define a `schema` property in ```conf/application.conf``` like this:
 
 ```
 schema = """
@@ -184,7 +184,7 @@ With a database ready, we are going to build our *JSON API*.
 
 ## creating a repository
 
-[The SQL Object API](http://jdbi.org/sql_object_overview/) provides a declarative mechanism for a common [JDBI](http://jdbi.org/) usage – creation of DAO type objects where one method generally equates to one SQL statement. To use the SQL Object API, create an interface annotated to declare the desired behavior, like so:
+[The SQL Object API](http://jdbi.org/sql_object_overview/) provides a declarative mechanism for a common [JDBI](http://jdbi.org/) usage – creation of DAO type objects where one method generally equates to one SQL statement. To use the SQL Object API, create an interface annotated to declare the desired behavior, like this:
 
 ```java
 package jdbi;
@@ -305,7 +305,7 @@ You'll see an error page because we didn't persist any pet yet. Let's see how to
 
 ## save a pet
 
-So far, we see how to query pets by ID or listing all them, it is time to see how to creates a new pet:
+So far, we've seen how to query pets by ID or listing all them, it is time to see how to create a new pet:
 
 ```java
 {
@@ -374,7 +374,7 @@ So far, we see how to query pets by ID or listing all them, it is time to see ho
 
 # quick preview
 
-API is ready, let's see how it looks like:
+The API is ready, let's see how it looks like:
 
 ```java
 {
@@ -415,9 +415,9 @@ API is ready, let's see how it looks like:
 }
 ```
 
-Not bad, ugh?
+Not bad, huh?
 
-Isn't, but did you see we have to repeat the `/api/pets` pattern for each of our routes?
+But did you notice that we have to repeat the `/api/pets` pattern for each of our routes?
 
 Let's fix that with [Jooby.use(String)](http://jooby.org/apidocs/org/jooby/Jooby.html#use-java.lang.String-):
 
@@ -512,12 +512,20 @@ public class App extends Jooby {
 }
 ```
 
-Better now! The ```use``` method has many meanings in **Jooby**, If we use pass a ```String``` we can group route under a same path pattern.
+That's better! The ```use``` method has many meanings in **Jooby**, If we use pass a ```String``` we can group routes under the same path pattern.
 
 # conclusion
 
-As you already see, building an API that saves data in a **database** is very simple. Code looks clean and simple thanks to [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi) module.
+As you've already seen, building an API that saves data in a **database** is very easy. The code looks clean and simple thanks to the [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi) module.
 
-The [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi) module makes perfect sense if you want to have full control on your SQL queries, or if you don't like **ORM** tools too.
+The [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi) module makes perfect sense if you want to have full control of your SQL queries, or if you prefer not to use **ORM** tools.
 
+# source code
+
+* Complete source code available at: [jooby-project/jdbi-guide](https://github.com/jooby-project/jdbi-guide)
+
+# help and support
+
+* Discuss, share ideas, ask questions at [group](https://groups.google.com/forum/#!forum/jooby-project) or [gitter](https://gitter.im/jooby-project/jooby)
+* Follow us at [@joobyproject](https://twitter.com/joobyproject) and [GitHub](https://github.com/jooby-project/jooby/tree/master)
 
