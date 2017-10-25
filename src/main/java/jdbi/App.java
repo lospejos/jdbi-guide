@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.jooby.Jooby;
 import org.jooby.Results;
+import org.jooby.jdbc.Jdbc;
 import org.jooby.jdbi.Jdbi;
 import org.jooby.json.Jackson;
 import org.skife.jdbi.v2.DBI;
@@ -15,6 +16,8 @@ public class App extends Jooby {
 
   {
     use(new Jackson());
+
+    use(new Jdbc());
 
     use(new Jdbi()
         // 1 dbi ready
