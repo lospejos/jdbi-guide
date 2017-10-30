@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/jooby-project/jdbi-guide.svg?branch=master)](https://travis-ci.org/jooby-project/jdbi-guide)
+[![Build Status](https://travis-ci.org/jooby-guides/jdbi-guide.svg?branch=master)](https://travis-ci.org/jooby-guides/jdbi-guide)
 # jdbi guide
 
 In this guide you will learn how to build a **JSON API** for ```Pets``` and persist them into a **relational database** using the [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi) module.
@@ -18,7 +18,7 @@ Make sure you have the following installed on your computer:
 Open a terminal/console and paste:
 
 ```bash
-mvn archetype:generate -B -DgroupId=org.jooby.guides -DartifactId=jdbi-guide -Dversion=1.0 -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.1.3
+mvn archetype:generate -B -DgroupId=org.jooby.guides -DartifactId=jdbi-guide -Dversion=1.0 -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.2.1
 ```
 
 Enter the application directory:
@@ -37,7 +37,7 @@ Add the [jackson](https://github.com/jooby-project/jooby/tree/master/jooby-jacks
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jackson</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.1</version>
 </dependency>
 ```
 
@@ -59,7 +59,7 @@ Add the [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi) de
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbi</artifactId>
-  <version>1.1.3</version>
+  <version>1.2.1</version>
 </dependency>
 ```
 
@@ -69,7 +69,7 @@ Import and use the module in `App.java`:
 import org.jooby.jdbi.Jdbi;
 ...
 {
-  use(new Jdbc());
+  ...
   use(new Jdbi());
 }
 ```
@@ -428,6 +428,7 @@ import java.util.List;
 
 import org.jooby.Jooby;
 import org.jooby.Results;
+import org.jooby.jdbc.Jdbc;
 import org.jooby.jdbi.Jdbi;
 import org.jooby.json.Jackson;
 import org.skife.jdbi.v2.DBI;
@@ -439,6 +440,8 @@ public class App extends Jooby {
 
   {
     use(new Jackson());
+
+    use(new Jdbc());
 
     use(new Jdbi()
         // 1 dbi ready
