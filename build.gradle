@@ -1,0 +1,46 @@
+buildscript {
+
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    /**
+     * joobyRun 
+     */
+    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.2.3'
+  }
+}
+
+apply plugin: 'jooby'
+apply plugin: 'application'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    compile 'ch.qos.logback:logback-classic'
+    
+    compile 'org.jooby:jooby-netty:1+'
+    compile 'org.jooby:jooby-jedis:1+'
+    compile 'org.jooby:jooby-jackson:1+'
+    compile 'org.jooby:jooby-jdbi:1+'
+
+    compile 'com.h2database:h2:1+'
+    
+    
+    testCompile 'junit:junit:4+'
+    testCompile 'io.rest-assured:rest-assured:3+'
+}
+
+mainClassName = 'jdbi.App'
+
+/* * We diverge from the default resources structure to adopt the Jooby standard. */
+sourceSets.main.resources {
+  srcDirs = ["conf", "public"]
+}
