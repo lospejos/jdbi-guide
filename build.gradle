@@ -44,3 +44,8 @@ mainClassName = 'jdbi.App'
 sourceSets.main.resources {
   srcDirs = ["conf", "public"]
 }
+
+applicationDefaultJvmArgs = [
+        "-Xms8M",
+        "-Xmx16M"
+]
