@@ -8,7 +8,7 @@ buildscript {
     /**
      * joobyRun 
      */
-    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.2.3'
+    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1+' //'1.4.1'
   }
 }
 
